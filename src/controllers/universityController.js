@@ -55,6 +55,9 @@ const loginUniversity = async (req, res) => {
         if (!university || university.password !== password) {
             return res.status(401).json({ success: false, message: "Invalid email or password" });
         }
+        if (university.isActive === false) {
+            return res.status(403).json({ success: false, message: "❌ Account Suspended! Your access has been revoked by HEC." });
+        }
 
         res.status(200).json({
             success: true,
@@ -79,7 +82,11 @@ const issueCertificate = async (req, res) => {
         const file = req.file; 
 
         if (!studentName || !regNumber || !program || !cgpa || !universityName || !file) {
-            return res.status(400).json({ success: false, message: "Sari fields aur PDF file zaroori hai!" });
+            return res.status(400).json({ success: false, message: "All fields and PDF file are required" });
+        }
+        const uniCheck = await University.findOne({ universityName });
+        if (!uniCheck || uniCheck.isActive === false) {
+            return res.status(403).json({ success: false, message: "❌ Issuance Blocked! Your account has been suspended by HEC." });
         }
 
         const formData = new FormData();
@@ -151,6 +158,11 @@ const bulkIssueCertificate = async (req, res) => {
         
         if (!studentsData || !Array.isArray(studentsData) || studentsData.length === 0) {
             return res.status(400).json({ success: false, message: "Invalid or empty student data array" });
+        }
+        // 👇 NAYA CHECK: Bulk issuance se pehle check karo
+        const uniCheck = await University.findOne({ universityName });
+        if (!uniCheck || uniCheck.isActive === false) {
+            return res.status(403).json({ success: false, message: "❌ Issuance Blocked! Your account has been suspended by HEC." });
         }
 
         const uniWallet = new ethers.Wallet(process.env.UNIVERSITY_PRIVATE_KEY, provider);

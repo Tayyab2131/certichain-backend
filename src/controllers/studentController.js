@@ -5,7 +5,7 @@ const loginStudent = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ success: false, message: "Email aur Password zaroori hai!" });
+            return res.status(400).json({ success: false, message: "Email and Password are required" });
         }
 
         console.log(`Login attempt for email: ${email}`);
@@ -13,11 +13,11 @@ const loginStudent = async (req, res) => {
         const student = await Student.findOne({ email: email });
 
         if (!student) {
-            return res.status(404).json({ success: false, message: "Is email se koi student nahi mila." });
+            return res.status(404).json({ success: false, message: "No student found with this email." });
         }
 
         if (student.password !== password) {
-            return res.status(401).json({ success: false, message: "Password galat hai." });
+            return res.status(401).json({ success: false, message: "Incorrect password." });
         }
 
         console.log(`Student ${student.studentName} logged in successfully!`);

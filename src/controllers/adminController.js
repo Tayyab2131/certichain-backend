@@ -21,7 +21,8 @@ const loginAdmin = async (req, res) => {
 const getDashboardStats = async (req, res) => {
     try {
         const totalDegrees = await Student.countDocuments();
-        const whitelistedUnis = await University.countDocuments({ isActive: true });
+        const whitelistedUnis = await University.countDocuments(); // 👇 Pura count
+        const activeNodes = await University.countDocuments({ isActive: true }); // 👇 Sirf Active count
         
         // Feed ke liye latest 5 students utha rahe hain
         const recentActivity = await Student.find().sort({ issuedAt: -1 }).limit(5).select('universityName issuedAt');
@@ -37,6 +38,7 @@ const getDashboardStats = async (req, res) => {
             data: {
                 totalDegrees: totalDegrees,
                 whitelistedUnis: whitelistedUnis,
+                activeNodes: activeNodes, // 👇 NAYA: Active nodes ki tadad frontend ko bhej rahe hain
                 recentActivity: mappedFeed
             }
         });
